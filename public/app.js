@@ -14,8 +14,6 @@ learnjs.problemView = function (problemNumber) {
 learnjs.showView = function (hash) {
   var hash = hash || '';
 
-  console.log('showView');
-
   // JavaScript object that acts as a lookup for the hash values association to their appropriate view functions
   // Each view function returns a jQuery object that contains the markup for the required view
   var routes = {

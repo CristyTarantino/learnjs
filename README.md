@@ -1,7 +1,6 @@
 N.B. This app is work in progress...
 
-#Learn JavaScript - a Serverless Single Page Apps
-
+#LearnJS - A Serverless AWS Single Page Demo App
 
 ##Getting started
 
