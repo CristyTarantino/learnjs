@@ -15,13 +15,15 @@
 <body>
 <div class="markup">
   <div class="view-container container">
-    <div class="row">
-      <div class="one-half column">
-        <h3>Learn JavaScript, one puzzle at a time.</h3>
-        <a class="button button-primary" href="">Start Now</a>
-      </div>
-      <div class="one-half column">
-        <img class="blocks" src="images/HeroImage.jpg">
+    <div class="landing-view">
+      <div class="row">
+        <div class="one-half column">
+          <h3>Learn JavaScript, one puzzle at a time.</h3>
+          <a href="#problem-1" class="button button-primary" href="">Start Now</a>
+        </div>
+        <div class="one-half column">
+          <img class="blocks" src="images/HeroImage.jpg">
+        </div>
       </div>
     </div>
   </div>
@@ -29,5 +31,8 @@
 <script src='https://code.jquery.com/jquery-2.1.4.min.js'></script>
 <script src='/vendor.js'></script>
 <script src='/app.js'></script>
+<script type="text/javascript">
+  $(window).ready(learnjs.oppOnReady);
+</script>
 </body>
 </html>

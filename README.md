@@ -51,5 +51,12 @@ and then run
 
 to deploy the app.
 
+##Test Suite
+
+To run tests we are going to use the Jasmine testing framework.
+If you have the app loadeBy visiting `/test/index.html` you should see tge test output and if you are locally using LiveReload this page will automatically reload.
+
+It's important to deploy tests to production so if you have a user who's reporting a problem, a quick way to troubleshoot what is going on can be to ask the user to browse to 'tests' and make sure they all pass.
+I not, the user can copy and paste the output and sent it to you. You can then try to reproduce the failing test as a proxy for reproducing the error that the user is reporting.
 
  
