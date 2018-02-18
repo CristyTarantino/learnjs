@@ -5,7 +5,7 @@ describe('LearnJS', function () {
       learnjs.appOnReady();
       expect(learnjs.showView).toHaveBeenCalledWith(window.location.hash);
     });
-    it('should subcribe to the hash change event', function () {
+    it('should subscribe to the hash change event', function () {
       learnjs.appOnReady();
       spyOn(learnjs, 'showView');
       $(window).trigger('hashchange');
@@ -34,7 +34,7 @@ describe('LearnJS', function () {
   describe('problemView', function () {
     it('should have a title that includes the problem number', function () {
       var view = learnjs.problemView('1');
-      expect(view.text()).toEqual('Problem #1 Coming soon!');
+      expect(view.find('.title').text()).toEqual('Problem #1');
     });
   });
 });
