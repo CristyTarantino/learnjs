@@ -3,15 +3,6 @@
 // create namespace that helps giving structure to the application and helps to avoid name collisions
 var learnjs = {};
 
-
-
-// #problem-1 view
-learnjs.problemView = function (problemNumber) {
-  var view = $('.templates .problem-view').clone();
-  view.find('.title').text('Problem #' + problemNumber);
-  return view;
-};
-
 // we could use object-oriented JavaScript1 to define a data model
 // First, you create JavaScript classes (which are actually just functions) that use prototypical inheritance
 // to model your problem. You then create graphs of these objects in order to store your data and perform
@@ -48,6 +39,47 @@ learnjs.problems = [
   }
 ];
 
+// View that binds problem data to the element in the view
+learnjs.problemView = function (data) {
+  var problemNumber = parseInt(data, 10);
+  var view = learnjs.template('problem-view');
+  var problemData = learnjs.problems[problemNumber-1];
+  var resultFlash = view.find('.result');
+
+  // validate a user's answer and determine if it is correct.
+  // This function builds up a JavaScript string that chacks for a truthy return value,
+  // and then calls eval() on it to get the result.
+  function checkAnswer() {
+    var answer = view.find('.answer').val();
+    var test = problemData.code.replace('__', answer) + '; problem();';
+    return eval(test);
+  }
+
+  function checkAnswerClick() {
+    if (checkAnswer()) {
+      var flashContent = learnjs.buildCorrectFlash(problemNumber);
+      learnjs.flashElement(resultFlash, flashContent);
+    } else {
+      learnjs.flashElement(resultFlash, 'Incorrect!');
+    }
+    return false;
+  }
+
+  if (problemNumber < learnjs.problems.length) {
+    var buttonItem = learnjs.template('skip-btn');
+    buttonItem.find('a').attr('href', '#problem-' + (problemNumber + 1));
+    $('.nav-list').append(buttonItem);
+    view.bind('removingView', function() {
+      buttonItem.remove();
+    });
+  }
+
+  view.find('.check-btn').click(checkAnswerClick);
+  view.find('.title').text('Problem #' + problemNumber);
+  learnjs.applyObject(problemData, view);
+  return view;
+};
+
 // router function that associates hashes with view functions
 // N.B. view creation behaviours are out from the router function
 learnjs.showView = function (hash) {
@@ -56,7 +88,9 @@ learnjs.showView = function (hash) {
   // JavaScript object that acts as a lookup for the hash values association to their appropriate view functions
   // Each view function returns a jQuery object that contains the markup for the required view
   var routes = {
-    '#problem': learnjs.problemView
+    '#problem': learnjs.problemView,
+    '#': learnjs.landingView,
+    '': learnjs.landingView
   };
 
   var hashParts = hash.split('-');
@@ -70,6 +104,7 @@ learnjs.showView = function (hash) {
   // and it will replace the view-container element with the view's markup.
   // If it can't find a matching route, it will do nothing, leaving the landing page in place.
   if (viewFn) {
+    learnjs.triggerEvent('removingView', []);
     $('.view-container').empty().append(viewFn(queryParam));
   }
 };
@@ -80,4 +115,43 @@ learnjs.appOnReady = function () {
   };
 
   learnjs.showView(window.location.hash);
+};
+
+learnjs.landingView = function() {
+  return learnjs.template('landing-view');
+};
+
+learnjs.triggerEvent = function(name, args) {
+  $('.view-container>*').trigger(name, args);
+};
+
+learnjs.template = function (name) {
+  return $('.templates .' + name).clone();
+};
+
+// Data binding function that takes an object and updates the jQuery
+// element passed as parameter based on the keys in the object
+learnjs.applyObject = function (obj, elem) {
+  for (var key in obj) {
+    elem.find('[data-name="' + key + '"]').text(obj[key]);
+  }
+};
+
+learnjs.flashElement = function (elem, content) {
+  elem.fadeOut('fast', function () {
+    elem.html(content);
+    elem.fadeIn();
+  });
+};
+
+learnjs.buildCorrectFlash = function (problemNum) {
+  var correctFlash = learnjs.template('correct-flash');
+  var link = correctFlash.find('a');
+  if (problemNum < learnjs.problems.length) {
+    link.attr('href', '#problem-' + (problemNum + 1));
+  } else {
+    link.attr('href', '');
+    link.text("You're Finished!");
+  }
+  return correctFlash;
 };
