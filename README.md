@@ -1,8 +1,8 @@
 N.B. This app is work in progress...
 
-#LearnJS - A Serverless AWS Single Page Demo App
+# LearnJS - A Serverless AWS Single Page Demo App
 
-##Getting started
+## Getting started
 
 To start a local development server that serves the content of the public directory run the following command in the terminal from the worspace root directory:
 
@@ -11,7 +11,7 @@ and then access to `http://localhost:9292`.
 
 The server action in sspa script launches a simple Python web server that serves static content and if you have chosen to use LiveReload, it automatically reload the web app during development whenever the server detects that a file on the disk has changed.
 
-##Setting up the AWS command-Line Interface
+## Setting up the AWS command-Line Interface
 
 `sudo easy_install pip`
 `sudo pip install awscli`
@@ -38,7 +38,7 @@ Then run:
 ``` 
 Now that you've configured AWS CLI, you should have a new file in your home directory `~/.aws/credentials`.
 
-##Create an S3 Bucket
+## Create an S3 Bucket
 
 Run the following to create the S3 bucket
 
@@ -50,7 +50,7 @@ and then run
 
 to deploy the app.
 
-##Test Suite
+## Test Suite
 
 To run tests we are going to use the Jasmine testing framework.
 If you have the app loadeBy visiting `/test/index.html` you should see tge test output and if you are locally using LiveReload this page will automatically reload.
