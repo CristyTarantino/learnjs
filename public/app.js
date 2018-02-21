@@ -41,13 +41,18 @@ learnjs.problems = [
 
 // View that binds problem data to the element in the view
 learnjs.problemView = function (data) {
+  // calculate the problem number
   var problemNumber = parseInt(data, 10);
+
+  // get the problem template
   var view = learnjs.template('problem-view');
+
+  // get the data relative to the current problem
   var problemData = learnjs.problems[problemNumber-1];
   var resultFlash = view.find('.result');
 
   // validate a user's answer and determine if it is correct.
-  // This function builds up a JavaScript string that chacks for a truthy return value,
+  // This function builds up a JavaScript string that checks for a truthy return value,
   // and then calls eval() on it to get the result.
   function checkAnswer() {
     var answer = view.find('.answer').val();
@@ -55,6 +60,8 @@ learnjs.problemView = function (data) {
     return eval(test);
   }
 
+  // show in the result box if the result of the test is correct and in that case show a link to the next problem
+  // or incorrect
   function checkAnswerClick() {
     if (checkAnswer()) {
       var flashContent = learnjs.buildCorrectFlash(problemNumber);
@@ -66,17 +73,29 @@ learnjs.problemView = function (data) {
   }
 
   if (problemNumber < learnjs.problems.length) {
+    //get the skip button with href to next problem
     var buttonItem = learnjs.template('skip-btn');
     buttonItem.find('a').attr('href', '#problem-' + (problemNumber + 1));
+
+    // append it to the nav
     $('.nav-list').append(buttonItem);
+
+    // bind to the 'removingView' event so that when a view is removed we remove the skip button
     view.bind('removingView', function() {
       buttonItem.remove();
     });
   }
 
-  view.find('.check-btn').click(checkAnswerClick);
+  // Update the title of the view with the problem number
   view.find('.title').text('Problem #' + problemNumber);
+
+  // On click of the check button check the answer
+  view.find('.check-btn').click(checkAnswerClick);
+
+  // for every key in the object problemData relative to the current problem number,
+  // finds the element with data key equal the object key and populates it with the problemData key value.
   learnjs.applyObject(problemData, view);
+
   return view;
 };
 
@@ -104,11 +123,13 @@ learnjs.showView = function (hash) {
   // and it will replace the view-container element with the view's markup.
   // If it can't find a matching route, it will do nothing, leaving the landing page in place.
   if (viewFn) {
+    //  Before the view is replaced, trigger the event letting any existing views know they’re being removed
     learnjs.triggerEvent('removingView', []);
     $('.view-container').empty().append(viewFn(queryParam));
   }
 };
 
+// call the app view
 learnjs.appOnReady = function () {
   window.onhashchange = function () {
     learnjs.showView(window.location.hash);
@@ -117,14 +138,17 @@ learnjs.appOnReady = function () {
   learnjs.showView(window.location.hash);
 };
 
+// return the landing page view template
 learnjs.landingView = function() {
   return learnjs.template('landing-view');
 };
 
+// trigger the event with the given name in the view-container child
 learnjs.triggerEvent = function(name, args) {
   $('.view-container>*').trigger(name, args);
 };
 
+// returns the cloned html template with the class name passed as parameter
 learnjs.template = function (name) {
   return $('.templates .' + name).clone();
 };
@@ -137,6 +161,7 @@ learnjs.applyObject = function (obj, elem) {
   }
 };
 
+// fades in the content param in the elem param
 learnjs.flashElement = function (elem, content) {
   elem.fadeOut('fast', function () {
     elem.html(content);
@@ -144,6 +169,7 @@ learnjs.flashElement = function (elem, content) {
   });
 };
 
+// returns html with link to next problem or an empty link if there are no more problems in the learnjs.problems array
 learnjs.buildCorrectFlash = function (problemNum) {
   var correctFlash = learnjs.template('correct-flash');
   var link = correctFlash.find('a');

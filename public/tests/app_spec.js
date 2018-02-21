@@ -137,7 +137,7 @@ describe('LearnJS', function () {
     });
   });
 
-  it('can trigger events on the view', function() {
+  it('should trigger events on the view', function() {
     callback = jasmine.createSpy('callback');
     var div = $('<div>').bind('fooEvent', callback);
     $('.view-container').append(div);
