@@ -1,7 +1,14 @@
 'use strict';
 
 // create namespace that helps giving structure to the application and helps to avoid name collisions
-var learnjs = {};
+var learnjs;
+
+learnjs = {
+  // AWS Cognito Identity Pool
+  poolId: 'eu-west-1:4b120fad-b1ce-4137-9ca3-2c88f2ab15f8'
+};
+
+learnjs.identity = new $.Deferred();
 
 // we could use object-oriented JavaScript1 to define a data model
 // First, you create JavaScript classes (which are actually just functions) that use prototypical inheritance
@@ -11,7 +18,7 @@ var learnjs = {};
 // Both of these object types might inherit persistence and serialization behavior from another object type
 // (maybe Entity or Model).
 // One of the limitations of object graph data models is that you have to map them back and forth to your
-// underlying datastore. For example, if we were using a relational database for our app,
+// underlying data-store. For example, if we were using a relational database for our app,
 // then we might have to use an object-relational mapping (ORM) tool to serialize and deserialize
 // our data to and from the database.
 // If we used a data model with prototypical inheritance, we might run into problems when we tried to serialize
@@ -102,17 +109,18 @@ learnjs.problemView = function (data) {
 // router function that associates hashes with view functions
 // N.B. view creation behaviours are out from the router function
 learnjs.showView = function (hash) {
-  var hash = hash || '';
+  var _hash = hash || '';
 
   // JavaScript object that acts as a lookup for the hash values association to their appropriate view functions
   // Each view function returns a jQuery object that contains the markup for the required view
   var routes = {
     '#problem': learnjs.problemView,
+    '#profile': learnjs.profileView,
     '#': learnjs.landingView,
     '': learnjs.landingView
   };
 
-  var hashParts = hash.split('-');
+  var hashParts = _hash.split('-');
   var queryPart = hashParts[0];
   var queryParam = hashParts[1];
 
@@ -136,11 +144,21 @@ learnjs.appOnReady = function () {
   };
 
   learnjs.showView(window.location.hash);
+  learnjs.identity.done(learnjs.addProfileLink);
 };
 
 // return the landing page view template
 learnjs.landingView = function() {
   return learnjs.template('landing-view');
+};
+
+learnjs.profileView = function() {
+  var view = learnjs.template('profile-view');
+  learnjs.identity.done(function(identity) {
+    view.find('.email').text(identity.email);
+    view.find('.name').text(identity.name);
+  });
+  return view;
 };
 
 // trigger the event with the given name in the view-container child
@@ -157,7 +175,9 @@ learnjs.template = function (name) {
 // element passed as parameter based on the keys in the object
 learnjs.applyObject = function (obj, elem) {
   for (var key in obj) {
-    elem.find('[data-name="' + key + '"]').text(obj[key]);
+    if (obj.hasOwnProperty(key)) {
+      elem.find('[data-name="' + key + '"]').text(obj[key]);
+    }
   }
 };
 
@@ -181,3 +201,54 @@ learnjs.buildCorrectFlash = function (problemNum) {
   }
   return correctFlash;
 };
+
+
+learnjs.addProfileLink = function(profile) {
+  var link = learnjs.template('profile-link');
+  link.find('a').text(profile.email);
+  $('.signin-bar').prepend(link);
+};
+
+// wrap up the callback we pass to the refresh function, resolving it if the request succeed, and rejecting it if
+learnjs.awsRefresh = function() {
+  var deferred = new $.Deferred();
+  AWS.config.credentials.refresh(function(err) {
+    if (err) {
+      deferred.reject(err);
+    } else {
+      deferred.resolve(AWS.config.credentials.identityId);
+    }
+  });
+  return deferred.promise();
+};
+
+function googleSignIn(googleUser) {
+  var id_token = googleUser.getAuthResponse().id_token;
+  AWS.config.update({
+    region: 'eu-west-1',
+    credentials: new AWS.CognitoIdentityCredentials({
+      IdentityPoolId: learnjs.poolId,
+      Logins: {
+        'accounts.google.com': id_token
+      }
+    })
+  });
+  function refresh() {
+    return gapi.auth2.getAuthInstance().signIn({
+      prompt: 'login'
+    }).then(function(userUpdate) {
+      var creds = AWS.config.credentials;
+      var newToken = userUpdate.getAuthResponse().id_token;
+      creds.params.Logins['accounts.google.com'] = newToken;
+      return learnjs.awsRefresh();
+    });
+  }
+  learnjs.awsRefresh().then(function(id) {
+    learnjs.identity.resolve({
+      id: id,
+      name: googleUser.getBasicProfile().getName(),
+      email: googleUser.getBasicProfile().getEmail(),
+      refresh: refresh
+    });
+  });
+}
