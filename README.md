@@ -2,6 +2,11 @@ N.B. This app is work in progress...
 
 # LearnJS - A Serverless AWS Single Page Demo App
 
+[![Build Status](https://travis-ci.org/CristyTarantino/learnjs.svg?branch=master)](https://travis-ci.org/CristyTarantino/learnjs)
+[![Maintainability](https://api.codeclimate.com/v1/badges/72c34721359e643f85b3/maintainability)](https://codeclimate.com/github/CristyTarantino/learnjs/maintainability)
+[![Test Coverage](https://api.codeclimate.com/v1/badges/72c34721359e643f85b3/test_coverage)](https://codeclimate.com/github/CristyTarantino/learnjs/test_coverage)
+![Dependencies](https://david-dm.org/CristyTarantino/learnjs.svg)
+
 ## Getting started
 
 To start a local development server that serves the content of the public directory run the following command in the terminal from the worspace root directory:
